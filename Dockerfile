@@ -52,6 +52,9 @@ RUN cd /home/arch/taxon-tools && \
   mkdir -p /usr/local/share/awk && \
   cp -f share/taxon-tools.awk /usr/local/share/awk/.
 
+# does not shrink the image... 
+# RUN pacman --noconfirm -Rs fakeroot binutils gcc make diffutils git && \
+  pacman --noconfirm -Scc
 
 # WORKDIR /home/arch/
 ENTRYPOINT ["/usr/local/bin/matchnames"]
