@@ -53,3 +53,9 @@ RUN cd /home/arch/taxon-tools && \
   cp -f share/taxon-tools.awk /usr/local/share/awk/.
 
 
+# WORKDIR /home/arch/
+ENTRYPOINT ["/usr/local/bin/matchnames"]
+# CMD ["-a"] ["listA"] ["-b"] ["listB"]
+
+# EXPOSE 3000
+
