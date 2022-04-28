@@ -56,9 +56,18 @@ RUN cd /home/arch/taxon-tools && \
 # RUN pacman --noconfirm -Rs fakeroot binutils gcc make diffutils git && \
 #  pacman --noconfirm -Scc
 
-# WORKDIR /home/arch/
-ENTRYPOINT ["/usr/local/bin/matchnames"]
-# CMD ["-a"] ["listA"] ["-b"] ["listB"]
+# ENTRYPOINT ["/usr/local/bin/matchnames"]
 
-# EXPOSE 3000
+FROM archlinux:latest
+
+COPY --from=0 /usr/lib/libtre.so* /usr/lib/
+COPY --from=0 /usr/lib/libgawkextlib.so* /usr/lib/
+RUN mkdir -p /usr/lib/gawk/
+COPY --from=0 /usr/lib/gawk/aregex.so /usr/lib/gawk/
+COPY --from=0 /usr/local/bin/matchnames /usr/bin/
+
+ENTRYPOINT ["/usr/bin/matchnames"]
+
+
+
 
