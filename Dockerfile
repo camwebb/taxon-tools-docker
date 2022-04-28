@@ -1,73 +1,45 @@
-FROM archlinux:latest
+FROM alpine:latest
 
-# RUN pacman -Syyu
+WORKDIR /opt
+RUN  apk add gawk
+RUN  apk add alpine-sdk
 
-RUN pacman -Sy
+RUN  curl -LO http://laurikari.net/tre/tre-0.8.0.zip
+RUN  unzip tre-0.8.0.zip 
+RUN  cd tre-0.8.0/ && ./configure --prefix=/usr/local && make && make install
 
-RUN pacman --noconfirm -S fakeroot binutils gcc make
-RUN pacman --noconfirm -S tre diffutils
-RUN pacman --noconfirm -S git
+# SF downloads are timing out :-(
+# RUN  curl -LO https://downloads.sourceforge.net/gawkextlib/gawkextlib-1.0.4.tar.gz
+COPY sf/gawkextlib-1.0.4.tar.gz .
+RUN  tar xvzf gawkextlib-1.0.4.tar.gz 
+RUN  cd gawkextlib-1.0.4/ && \
+     ./configure --prefix=/usr/local && make && make install
 
-RUN useradd -m arch
+# RUN  curl -LO https://downloads.sourceforge.net/gawkextlib/gawk-aregex-1.1.0.tar.gz
+COPY sf/gawk-aregex-1.1.0.tar.gz .
+RUN  tar xvzf gawk-aregex-1.1.0.tar.gz 
+RUN  cd gawk-aregex-1.1.0/ && \
+     ./configure --prefix=/usr/local && make && make install
 
-USER arch
-
-RUN cd /home/arch && \
- curl -LO https://aur.archlinux.org/cgit/aur.git/snapshot/gawkextlib.tar.gz && \
- tar xvzf gawkextlib.tar.gz && \
- cd gawkextlib && \
- makepkg
-
-USER root
-
-RUN pacman --noconfirm -U /home/arch/gawkextlib/gawkextlib*.zst
-
-USER arch
-
-RUN cd /home/arch && \
- curl -LO https://aur.archlinux.org/cgit/aur.git/snapshot/gawk-aregex.tar.gz && \
- tar xvzf gawk-aregex.tar.gz && \
- cd gawk-aregex && \
- makepkg
-
-USER root
-
-RUN pacman --noconfirm -U /home/arch/gawk-aregex/*.zst
-
-USER arch
-
-RUN cd /home/arch && \
- git clone https://github.com/camwebb/taxon-tools.git && \
- cd taxon-tools && \
- cp matchnames matchnames.ori && \
- sed -i -E 's/#@> //g' matchnames && \
- sed -i -E 's/^(.*#@<)/#\1/g' matchnames && \ 
- make check
-
-USER root
-
-RUN cd /home/arch/taxon-tools && \
-  mkdir -p /usr/local/bin && \
-  cp -f matchnames parsenames /usr/local/bin/. && \
-  mkdir -p /usr/local/share/awk && \
-  cp -f share/taxon-tools.awk /usr/local/share/awk/.
-
-# does not shrink the image... 
-# RUN pacman --noconfirm -Rs fakeroot binutils gcc make diffutils git && \
-#  pacman --noconfirm -Scc
+RUN  git clone https://github.com/camwebb/taxon-tools.git
+RUN  cd taxon-tools/ && \
+  sed -i -E 's/#@> //g' matchnames && \
+  sed -i -E 's/^(.*#@<)/#\1/g' matchnames && \
+  sed -i -E 's|/bin/gawk|/usr/bin/gawk|g' matchnames && \
+  sed -i 's|@load "aregex"|@load "/usr/local/lib/gawk/aregex.so"|g' \
+  matchnames && mkdir -p /usr/local/bin && \
+  cp -f matchnames parsenames /usr/local/bin/
 
 # ENTRYPOINT ["/usr/local/bin/matchnames"]
 
-FROM archlinux:latest
+FROM alpine:latest
 
-COPY --from=0 /usr/lib/libtre.so* /usr/lib/
-COPY --from=0 /usr/lib/libgawkextlib.so* /usr/lib/
-RUN mkdir -p /usr/lib/gawk/
-COPY --from=0 /usr/lib/gawk/aregex.so /usr/lib/gawk/
-COPY --from=0 /usr/local/bin/matchnames /usr/bin/
+RUN  apk add gawk
+RUN mkdir -p /usr/local/lib/gawk
+RUN mkdir -p /usr/local/bin
+COPY --from=0 /usr/local/lib/libtre.so* /usr/local/lib/
+COPY --from=0 /usr/local/lib/libgawkextlib.so* /usr/local/lib/
+COPY --from=0 /usr/local/lib/gawk/aregex.so /usr/local/lib/gawk/
+COPY --from=0 /usr/local/bin/matchnames /usr/local/bin/
 
-ENTRYPOINT ["/usr/bin/matchnames"]
-
-
-
-
+ENTRYPOINT ["/usr/local/bin/matchnames"]
