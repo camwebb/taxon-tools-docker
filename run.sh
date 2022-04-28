@@ -5,9 +5,7 @@
 
 docker build -t matchnames .
 
-# Not working!
-docker run -v $(pwd):$(pwd) -w /home/arch --rm -i -t matchnames -a /home/arch/listA -b /home/arch/listB
-
+docker run --rm -it -v `pwd`:`pwd` -w `pwd` matchnames -a listA -b listB -o output
 
 # Cool:
 #   docker run -i -t archlinux /bin/bash

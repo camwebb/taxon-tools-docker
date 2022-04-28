@@ -54,7 +54,7 @@ RUN cd /home/arch/taxon-tools && \
 
 # does not shrink the image... 
 # RUN pacman --noconfirm -Rs fakeroot binutils gcc make diffutils git && \
-  pacman --noconfirm -Scc
+#  pacman --noconfirm -Scc
 
 # WORKDIR /home/arch/
 ENTRYPOINT ["/usr/local/bin/matchnames"]
