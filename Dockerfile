@@ -21,8 +21,9 @@ RUN  tar xvzf gawk-aregex-1.1.0.tar.gz
 RUN  cd gawk-aregex-1.1.0/ && \
      ./configure --prefix=/usr/local && make && make install
 
-RUN  git clone https://github.com/camwebb/taxon-tools.git
-RUN  cd taxon-tools/ && \
+RUN curl -LO https://github.com/camwebb/taxon-tools/archive/refs/tags/v1.3.0.zip
+RUN unzip v1.3.0.zip
+RUN  cd taxon-tools-1.3.0/ && \
   sed -i -E 's/#@> //g' matchnames && \
   sed -i -E 's/^(.*#@<)/#\1/g' matchnames && \
   sed -i -E 's|/bin/gawk|/usr/bin/gawk|g' matchnames && \
