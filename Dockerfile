@@ -26,6 +26,7 @@ RUN  cd taxon-tools/ && \
   sed -i -E 's/#@> //g' matchnames && \
   sed -i -E 's/^(.*#@<)/#\1/g' matchnames && \
   sed -i -E 's|/bin/gawk|/usr/bin/gawk|g' matchnames && \
+  sed -i -E 's|/bin/gawk|/usr/bin/gawk|g' parsenames && \
   sed -i 's|@load "aregex"|@load "/usr/local/lib/gawk/aregex.so"|g' \
   matchnames && mkdir -p /usr/local/bin && \
   cp -f matchnames parsenames /usr/local/bin/
@@ -41,5 +42,8 @@ COPY --from=0 /usr/local/lib/libtre.so* /usr/local/lib/
 COPY --from=0 /usr/local/lib/libgawkextlib.so* /usr/local/lib/
 COPY --from=0 /usr/local/lib/gawk/aregex.so /usr/local/lib/gawk/
 COPY --from=0 /usr/local/bin/matchnames /usr/local/bin/
+COPY --from=0 /usr/local/bin/parsenames /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/matchnames"]
+ENV PATH=/usr/local/bin
+
+
